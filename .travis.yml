@@ -1,0 +1,38 @@
+language: generic
+os:
+- osx
+env:
+  global:
+  - CONDA_PREFIX=$HOME/miniconda
+  - MINICONDA_URL_BASE="https://repo.continuum.io/miniconda/Miniconda2-latest"
+  - TRAVIS_PYTHON_VERSION="2.7"
+  - secure: g7XVz0pU2MtoSHzJZldslX3pofGDaabSavVUVCTgTG8H/WrudMvUueKShSWMnn+RucO5lYMpcqOAHK09cxNQZ6nvUy+81tBdTLrANiZ44WEdMwWfHb9/iZ+9RvxC4q2jMLmFIZjJv/FCM7+gzFozrhzKBdtvglX7NQH3It1UgERZ37WWdAv+t33IY6cmIABn5bHEbDPPuuJj9Z7KvHXmYz5qPVnkUDbWxzPXgWYemvVF6APswmL3NkplIczKyCNGkiandsnF+T7h+8r+DG5PDF18+T6nKL0XGB1ROXq9L4BlmS8P3024vpOz+omoW2Z9IqtRUCFAeEddSN1CGZBtnL798ToKboYroPNZPtOHlEU0Wc+JeYrGwnn/kGKGVz8ckv41PMa8AC61rhw0VkZ/qf9FkPMMT7hGd+SkMbvoNI+xrAP3m1FetGcnNpPgr5JfZMVkeeWdn/QpO65PYNESMEIBg/e/q6l8iJURicw7g23bk9z4NB1vy1+Xy8sd6ZK9SAnhgi5QfCKOoXyROgYIPDpAn9V2oF5/z3myODribFJVr1dBGVq+LaPI8NPqk8nM+4afuj6lAFQefhYvze5nncqREju0Mn9MGGWWXbLxWW86lvxMuBSaVbV0lQHzsjAolTldsX2Dig+S4a6NqidW9GY53akxtjUIRyE87aniSO8=
+sudo: false
+before_install:
+- |
+  if [[ $TRAVIS_OS_NAME == "osx" ]]; then
+    brew remove --force $(brew list)
+    brew cleanup -s
+    rm -rf $(brew --cache)
+  fi
+install:
+- |
+  if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+    OS="MacOSX-x86_64"
+  else
+    OS="Linux-x86_64"
+  fi
+- curl $MINICONDA_URL_BASE-$OS.sh > $HOME/minconda.sh
+- bash $HOME/minconda.sh -b -p $CONDA_PREFIX
+- export PATH="$CONDA_PREFIX/bin:$PATH"
+- hash -r
+- conda config --set always_yes yes --set changeps1 no
+- conda install python=$TRAVIS_PYTHON_VERSION
+- conda install -q conda-build anaconda-client coverage sphinx
+script:
+- conda build ./recipe -c csdms-stack -c conda-forge
+after_success:
+- curl https://raw.githubusercontent.com/csdms/ci-tools/master/anaconda_upload.py
+  > $HOME/anaconda_upload.py
+- echo $ANACONDA_TOKEN | python $HOME/anaconda_upload.py ./recipe --channel=main --org=csdms-stack
+  --token=-

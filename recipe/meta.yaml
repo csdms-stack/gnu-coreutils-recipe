@@ -1,0 +1,26 @@
+{% set name = "coreutils" %}
+{% set version = "8.27" %}
+
+package:
+  name: {{ name }}
+  version: {{ version }}
+
+source:
+  url: http://ftpmirror.gnu.org/coreutils/coreutils-8.27.tar.xz
+  fname: coreutils-8.27.tar.xz
+  sha256: 8891d349ee87b9ff7870f52b6d9312a9db672d2439d289bc57084771ca21656b
+
+requirements:
+  build:
+    - gcc [linux]
+
+  run:
+    - libgcc [linux]
+
+build:
+  number: 0
+
+about:
+  home: https://www.gnu.org/software/coreutils
+  summary: GNU File, Shell, and Text utilities
+  license: GNU Lesser General Public License v2.1
