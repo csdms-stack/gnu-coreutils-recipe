@@ -12,6 +12,7 @@ source:
 
 requirements:
   build:
+    - xz
     - gcc [linux]
 
   run:
